@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 import {
   IonButton,
   IonButtons,
@@ -12,13 +13,23 @@ import {
   IonDatetime,
   IonToggle,
   IonLabel,
-  IonItemDivider,
-  IonItem
+  IonItem,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonImg,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonActionSheet
 } from '@ionic/react';
 import { getLogger } from '../../core';
 import { BookContext } from './BookProvider';
 import { RouteComponentProps } from 'react-router';
 import { BookProps } from './BookProps';
+import { Photo, usePhotoGallery } from '../camera/usePhotoGallery';
+import { camera, exit, trash } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/core';
 
 const log = getLogger('BookEdit');
 
@@ -32,7 +43,9 @@ const BookEdit: React.FC<BookEditProps> = ({ history, match }) => {
   const [author, setAuthor] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [readStatus, setReadStatus] = useState(false);
+  const [photo, setPhoto] = useState('');
   const [book, setBook] = useState<BookProps>();
+  const { photos, takePhoto } = usePhotoGallery();
 
   useEffect(() => {
     log('useEffect');
@@ -47,13 +60,15 @@ const BookEdit: React.FC<BookEditProps> = ({ history, match }) => {
       setAuthor(book.author);
       setReleaseDate(book.releaseDate.toString());
       setReadStatus(book.readStatus);
+      setPhoto(book.photo);
     }
   }, [match.params.id, books]);
 
   const handleSave = () => {
-    const editedBook = book ? { ...book, title, author, releaseDate: new Date(releaseDate), readStatus} 
-      : { title: title, author: author, releaseDate: new Date(releaseDate), readStatus: readStatus };
+    const editedBook = book ? { ...book, title, author, releaseDate: new Date(releaseDate), readStatus, photo} 
+      : { title: title, author: author, releaseDate: new Date(releaseDate), readStatus: readStatus, photo: photo };
     saveBook && saveBook(editedBook).then(() => history.goBack());
+    console.log(editedBook);
   };
   log('render');
   return (
@@ -89,6 +104,15 @@ const BookEdit: React.FC<BookEditProps> = ({ history, match }) => {
         {savingError && (
           <div>{savingError.message || 'Failed to save item'}</div>
         )}
+        {photo && <IonImg src={photo}/>}
+        <IonFab vertical="bottom" horizontal="center" slot="fixed">
+          <IonFabButton onClick={async () => {
+            const image = await takePhoto();
+            setPhoto(image);
+            }}>
+            <IonIcon icon={camera}/>
+          </IonFabButton>
+        </IonFab>
       </IonContent>
     </IonPage>
   );

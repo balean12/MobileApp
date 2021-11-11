@@ -83,10 +83,11 @@ const BookList: React.FC<RouteComponentProps> = ({ history }) => {
                 author,
                 title,
                 releaseDate,
-                readStatus}
+                readStatus,
+                photo}
                 ) => {
                   return <IonList key={`${_id}`} >
-                    <Book key={_id} _id={_id} author={author} title={title} releaseDate={releaseDate} readStatus={readStatus}
+                    <Book key={_id} _id={_id} author={author} title={title} releaseDate={releaseDate} readStatus={readStatus} photo={photo}
                         onEdit={_id => {
                           history.push(`/book/${_id}`)
                         }} /> 
