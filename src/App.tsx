@@ -2,7 +2,7 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ItemEdit, ItemList } from './todo';
+import { BookEdit, BookList } from './components/book';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -22,20 +22,26 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { ItemProvider } from './todo/ItemProvider';
+import { BookProvider } from './components/book/BookProvider';
+import { AuthProvider, Login, PrivateRoute } from './auth';
+import Home from './components/home/Home';
 
 const App: React.FC = () => (
   <IonApp>
-    <ItemProvider>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route path="/items" component={ItemList} exact={true} />
-          <Route path="/item" component={ItemEdit} exact={true} />
-          <Route path="/item/:id" component={ItemEdit} exact={true} />
-          <Route exact path="/" render={() => <Redirect to="/items" />} />
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </ItemProvider>
+    <IonReactRouter>
+      <IonRouterOutlet>
+        <AuthProvider>
+          <Route path="/login" component={Login} exact = {true} />
+          <BookProvider>
+            <PrivateRoute path="/books" component={BookList} exact={true} />
+            <PrivateRoute path="/book" component={BookEdit} exact={true} />
+            <PrivateRoute path="/book/:id" component={BookEdit} exact={true} />
+            <PrivateRoute path="/state" component={Home} exact={true} />
+          </BookProvider>
+          <Route exact path="/" render={() => <Redirect to="/state" />} />
+        </AuthProvider>
+      </IonRouterOutlet>
+    </IonReactRouter>
   </IonApp>
 );
 
