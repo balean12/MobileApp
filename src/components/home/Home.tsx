@@ -1,22 +1,22 @@
-import { IonBadge, IonButton, IonContent, IonLabel, IonHeader, IonItem, IonPage, IonTitle, IonButtons } from '@ionic/react';
-import React, { useContext } from 'react'
+import { IonButton, IonHeader, IonItem, IonPage, IonTitle, IonButtons, createAnimation } from '@ionic/react';
+import React, { useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../auth';
 import { getLogger } from '../../core';
-import { useAppState } from './useAppState';
-import { useNetwork } from './useNetwork';
+import { MyModal } from '../animation/NetworkModal';
 
 const log = getLogger('Home')
 
 const Home: React.FC = () => {
-  const { appState } = useAppState();
-  const { networkStatus } = useNetwork();
+ 
   const { logout } = useContext(AuthContext);
 
   const handleLogout = () => {
     log('logout');
     logout?.();
   }
+
+  useEffect(animateButton, []);
   
   return (
     <IonPage>
@@ -30,25 +30,30 @@ const Home: React.FC = () => {
           </IonButtons>
         </IonItem>
       </IonHeader>
-      <IonContent fullscreen>
-        <IonItem>
-          <IonLabel>App state is</IonLabel>
-          <IonBadge color="primary"> {JSON.stringify(appState.isActive)}</IonBadge>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Network status is</IonLabel>
-          <IonBadge color="secondary"> {JSON.stringify(networkStatus.connected)}</IonBadge>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Network connection type is</IonLabel>
-          <IonBadge color="secondary"> {JSON.stringify(networkStatus.connectionType)}</IonBadge>
-        </IonItem>
-        <Link to='/books'>
-          <IonButton>See books</IonButton>
-        </Link>
-      </IonContent>
+      <Link to='/books'>
+          <IonButton style={{display: 'flex'}} className="see-books-button">See books</IonButton>
+      </Link>
+      <MyModal />
     </IonPage>
   );
+
+  function animateButton() {
+    const el = document.querySelector('.see-books-button');
+    if (el) {
+      const animation = createAnimation()
+        .addElement(el)
+        .duration(1000)
+        .direction('alternate')
+        .iterations(Infinity)
+        .keyframes([
+          { offset: 0, transform: 'scale(1.0)', opacity: '1' },
+          {
+            offset: 1, transform: 'scale(0.9)', opacity: '0.7'
+          }
+        ]);
+      animation.play();
+    }
+  }
 };
 
 export default Home;
